@@ -1,0 +1,18 @@
+{
+  "lastUpdated": "2026-11-08T09:00:00",
+  "items": [
+    {
+      "title": {
+        "ar": "مثال: هذا خبر تجريبي",
+        "en": "Example: this is a sample news item"
+      },
+      "summary": {
+        "ar": "سيستبدل وكيل الأخبار هذا النص تلقائياً بأخبار حقيقية. يمكنك أيضاً تعديل هذا الملف يدوياً.",
+        "en": "The news agent will replace this with real news automatically. You can also edit this file by hand."
+      },
+      "source": "Lebanon Daily",
+      "url": "https://github.com/netmarketingom-ux/lebanon-daily",
+      "publishedAt": "2026-11-08"
+    }
+  ]
+}

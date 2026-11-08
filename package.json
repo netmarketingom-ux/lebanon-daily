@@ -1,0 +1,12 @@
+{
+  "name": "lebanon-daily",
+  "private": true,
+  "description": "Lebanon Daily website. The website itself needs no install; this file is only for the news agent.",
+  "type": "module",
+  "scripts": {
+    "update-news": "node agent/update-news.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0"
+  }
+}

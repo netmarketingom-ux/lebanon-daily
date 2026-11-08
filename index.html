@@ -74,13 +74,24 @@
       </p>
     </section>
 
+    <!-- ===== Card 3: News =====
+         app.js fills the list from news.json. -->
+    <section class="card news-card">
+      <h2 class="card-title" data-i18n="newsTitle">أخبار اليوم</h2>
+      <ul id="news-list" class="news-list"></ul>
+      <p class="updated">
+        <span data-i18n="lastUpdated">آخر تحديث:</span>
+        <span id="news-updated">—</span>
+      </p>
+    </section>
+
     <!-- Shown only if data.json could not be loaded -->
     <p id="error-box" class="error" hidden></p>
 
   </main>
 
   <footer class="site-footer">
-    <p data-i18n="disclaimer">الأسعار للاطلاع فقط وقد تختلف من مكان لآخر.</p>
+    <p data-i18n="disclaimer">الأسعار للاطلاع فقط وقد تختلف من مكان لآخر. ملخصات الأخبار مكتوبة آلياً بالذكاء الاصطناعي، راجع المصدر الأصلي.</p>
   </footer>
 
   <script src="app.js"></script>

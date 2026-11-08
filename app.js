@@ -6,8 +6,9 @@
      3. Loading the data
      4. Filling the cards with numbers
      5. Drawing the 7-day chart
-     6. The language button
-     7. Starting everything
+     6. The news list
+     7. The language button
+     8. Starting everything
    ========================================================= */
 
 
@@ -17,6 +18,10 @@
 // Later you can point this at a real API that returns the same shape
 // of JSON (see README.md, "Connecting a real data source").
 const DATA_URL = 'data.json';
+
+// Where the news comes from. The news agent (agent/update-news.mjs)
+// rewrites this file automatically; you can also edit it by hand.
+const NEWS_URL = 'news.json';
 
 // Arabic is the default language.
 const DEFAULT_LANG = 'ar';
@@ -40,7 +45,9 @@ const TEXT = {
     diesel: 'مازوت',
     gasCylinder: 'قارورة غاز',
     fuelNote: 'الأسعار بالليرة اللبنانية',
-    disclaimer: 'الأسعار للاطلاع فقط وقد تختلف من مكان لآخر.',
+    disclaimer: 'الأسعار للاطلاع فقط وقد تختلف من مكان لآخر. ملخصات الأخبار مكتوبة آلياً بالذكاء الاصطناعي، راجع المصدر الأصلي.',
+    newsTitle: 'أخبار اليوم',
+    newsEmpty: 'لا توجد أخبار حالياً.',
     switchTo: 'English',
     pageTitle: 'لبنان اليوم',
     error: 'تعذّر تحميل الأسعار. إذا فتحت الملف مباشرة، شغّل خادماً محلياً (راجع README.md).'
@@ -58,7 +65,9 @@ const TEXT = {
     diesel: 'Diesel',
     gasCylinder: 'Gas cylinder',
     fuelNote: 'Prices in Lebanese pounds (LBP)',
-    disclaimer: 'Prices are for information only and may vary by location.',
+    disclaimer: 'Prices are for information only and may vary by location. News summaries are written automatically by AI; check the original source.',
+    newsTitle: "Today's news",
+    newsEmpty: 'No news right now.',
     switchTo: 'العربية',
     pageTitle: 'Lebanon Daily',
     error: 'Could not load prices. If you opened the file directly, run a local server (see README.md).'
@@ -68,6 +77,7 @@ const TEXT = {
 // The language currently shown, and the data once it is loaded.
 let currentLang = DEFAULT_LANG;
 let siteData = null;
+let newsData = null;
 
 
 /* ---------- 3. Loading the data ---------- */
@@ -78,6 +88,15 @@ let siteData = null;
 async function loadData() {
   // "no-store" makes the browser fetch fresh data instead of an old copy.
   const response = await fetch(DATA_URL, { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error('HTTP ' + response.status);
+  }
+  return response.json();
+}
+
+// Same idea for the news file.
+async function loadNews() {
+  const response = await fetch(NEWS_URL, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error('HTTP ' + response.status);
   }
@@ -203,7 +222,69 @@ function drawChart(history) {
 }
 
 
-/* ---------- 6. The language button ---------- */
+/* ---------- 6. The news list ---------- */
+
+// "2026-11-08" -> "8 Nov 2026" (or the Arabic version).
+function formatDate(text) {
+  const locale = currentLang === 'ar' ? 'ar-LB-u-nu-latn' : 'en-GB';
+  return new Date(text + 'T12:00:00').toLocaleDateString(locale, {
+    day: 'numeric', month: 'short', year: 'numeric'
+  });
+}
+
+// Build one <li> per news item.
+// We use createElement + textContent (never innerHTML) so that text
+// coming from the news file can't inject code into the page.
+function renderNews() {
+  if (!newsData) return;
+  const list = document.getElementById('news-list');
+  list.innerHTML = '';
+
+  const items = newsData.items || [];
+  if (items.length === 0) {
+    const empty = document.createElement('li');
+    empty.textContent = TEXT[currentLang].newsEmpty;
+    list.appendChild(empty);
+  }
+
+  items.forEach(function (item) {
+    const li = document.createElement('li');
+
+    // Title, linking to the original article in a new tab
+    const title = document.createElement('h3');
+    const link = document.createElement('a');
+    link.textContent = item.title[currentLang];
+    if (String(item.url).startsWith('https://')) {
+      link.href = item.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+    title.appendChild(link);
+
+    const summary = document.createElement('p');
+    summary.textContent = item.summary[currentLang];
+
+    // "Naharnet · 8 Nov 2026"
+    // Each part sits in its own <bdi> so English and Arabic don't get mixed up.
+    const meta = document.createElement('span');
+    meta.className = 'news-meta';
+    const source = document.createElement('bdi');
+    source.textContent = item.source;
+    const date = document.createElement('bdi');
+    date.textContent = formatDate(item.publishedAt);
+    meta.append(source, ' · ', date);
+
+    li.appendChild(title);
+    li.appendChild(summary);
+    li.appendChild(meta);
+    list.appendChild(li);
+  });
+
+  setText('news-updated', formatDateTime(newsData.lastUpdated));
+}
+
+
+/* ---------- 7. The language button ---------- */
 
 // Switch every text on the page to the chosen language.
 function applyLanguage(lang) {
@@ -226,8 +307,9 @@ function applyLanguage(lang) {
   // Remember the choice for next visit (ignore errors in private mode)
   try { localStorage.setItem('lang', lang); } catch (e) {}
 
-  // Redraw numbers and dates in the new language
+  // Redraw numbers, dates and news in the new language
   renderData();
+  renderNews();
   const errorBox = document.getElementById('error-box');
   if (!errorBox.hidden) errorBox.textContent = words.error;
 }
@@ -237,7 +319,7 @@ document.getElementById('lang-toggle').addEventListener('click', function () {
 });
 
 
-/* ---------- 7. Start ---------- */
+/* ---------- 8. Start ---------- */
 
 async function start() {
   // Use the language from the last visit, otherwise Arabic
@@ -253,6 +335,14 @@ async function start() {
     const errorBox = document.getElementById('error-box');
     errorBox.textContent = TEXT[currentLang].error;
     errorBox.hidden = false;
+  }
+
+  // News is loaded separately, so a problem with it never hides the prices
+  try {
+    newsData = await loadNews();
+    renderNews();
+  } catch (err) {
+    console.error('Could not load news:', err);
   }
 }
 

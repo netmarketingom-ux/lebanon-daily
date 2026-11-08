@@ -165,7 +165,38 @@ body {
 .chart .label { fill: var(--muted); font-size: 12px; }
 .chart .value { fill: var(--text); font-size: 12px; font-weight: 600; }
 
-/* ----- 8. Error + footer ----- */
+/* ----- 8. News list ----- */
+.news-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.news-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.news-list li:last-child { border-bottom: none; }
+.news-list h3 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+.news-list h3 a {
+  color: var(--text);
+  text-decoration: none;
+}
+.news-list h3 a:hover { color: var(--accent); text-decoration: underline; }
+.news-list p {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: 1rem;
+}
+.news-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ----- 9. Error + footer ----- */
 .error {
   background: #fdecee;
   color: #8a1020;
@@ -180,8 +211,8 @@ body {
   padding: 8px 16px 32px;
 }
 
-/* ----- 9. Bigger screens: put the two cards side by side ----- */
+/* ----- 10. Bigger screens: price cards side by side, news full width ----- */
 @media (min-width: 768px) {
   .container { grid-template-columns: 1fr 1fr; align-items: start; }
-  .error { grid-column: 1 / -1; }
+  .news-card, .error { grid-column: 1 / -1; }
 }

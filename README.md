@@ -1,16 +1,20 @@
 # Lebanon Daily | لبنان اليوم
 
-A simple website that shows the USD to LBP market rate and today's fuel prices in Lebanon.
+A simple website that shows the USD to LBP market rate, today's fuel prices and the day's news in Lebanon.
 It works in Arabic (the default, right-to-left) and English.
 
 ## Files
 
 | File         | What it is                                                         |
 |--------------|--------------------------------------------------------------------|
-| `index.html` | The page layout: header, the two cards and the footer              |
+| `index.html` | The page layout: header, the cards and the footer              |
 | `style.css`  | Colours, sizes and layout (built for phones first)                 |
 | `app.js`     | Loads the data, fills in the numbers, draws the chart, switches language |
 | `data.json`  | **The prices. Edit this file to update the site.**                 |
+| `news.json`  | The news. Written automatically by the news agent (or edit by hand) |
+| `agent/update-news.mjs` | The AI news agent (see "Automatic news" below)          |
+| `.github/workflows/update-news.yml` | Runs the agent on GitHub 3 times a day     |
+| `package.json` | Only used by the news agent. The website itself needs no install. |
 
 ## How to open and test it on your computer
 
@@ -63,6 +67,59 @@ Each day: update `rate` and `lastUpdated`, then add today's entry at the **end**
 
 If the page shows an error after editing, you probably broke the JSON format
 (a missing comma is the usual cause). Paste the file into https://jsonlint.com to find the mistake.
+
+## Automatic news (AI agent)
+
+The News card is filled from `news.json`. An AI agent keeps that file up to date:
+
+1. GitHub runs `agent/update-news.mjs` at about 7am, 1pm and 7pm Beirut time.
+2. The agent asks Claude (Anthropic's AI) to search a fixed list of news websites
+   for the most important Lebanon stories from the last day or two.
+3. Claude writes a short title and summary for each story, in Arabic and English,
+   with a link to the original article.
+4. The agent checks every story: the link must be `https://` and must have come from
+   a real search result, otherwise the story is dropped. This stops made-up stories.
+5. If everything is fine, the new `news.json` is saved and committed, and the site shows it.
+   If anything fails, the old news stays on the site unchanged.
+
+### One-time setup
+
+1. Get an API key at https://platform.claude.com (Settings → API keys) and add some credit.
+   Each run pays for up to 8 web searches plus Claude reading the results and writing,
+   usually somewhere around $0.10–0.40 a run, so very roughly $10–35 a month at 3 runs a day.
+   Check the real cost in the console after a few days; to spend less, run it once a day
+   (edit the `cron` line) or lower `max_uses` in the agent.
+2. In this repository on GitHub: **Settings → Secrets and variables → Actions →
+   New repository secret**. Name: `ANTHROPIC_API_KEY`, value: your key.
+3. Test it: **Actions → Update news → Run workflow**. After a minute or two you should
+   see a new "Update news" commit, and the news on the site.
+
+### Changing what it does
+
+All the settings are at the top of `agent/update-news.mjs`:
+- `NUMBER_OF_ITEMS`: how many stories to show.
+- `NEWS_SITES`: the only websites it is allowed to search. Add or remove sites here.
+- `INSTRUCTIONS`: what kind of stories to pick and how to write them, in plain English.
+
+To change how often it runs, edit the `cron` line in `.github/workflows/update-news.yml`
+(times are in UTC, which is 2 hours behind Beirut in winter, 3 in summer).
+
+### Run it on your own computer (optional)
+
+You need Node.js (https://nodejs.org). In the project folder:
+
+```
+npm install
+ANTHROPIC_API_KEY=your-key npm run update-news
+```
+
+(On Windows PowerShell: `$env:ANTHROPIC_API_KEY="your-key"; npm run update-news`)
+
+### A word of caution
+
+AI summaries can occasionally get a detail wrong. Every story links to its source,
+and the footer reminds visitors to check it. Look at the news now and then, especially
+in the first weeks. To remove a story, delete it from `news.json` by hand.
 
 ## Changing the wording
 
