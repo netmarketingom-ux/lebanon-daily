@@ -1,229 +1,204 @@
 /* =========================================================
-   Lebanon Daily - news agent
-   Asks Claude to search the web for today's Lebanon news and
-   writes the result to news.json (titles and short summaries
-   in Arabic and English, each with a link to its source).
+   Lebanon Daily - news updater (RSS, no AI, free)
+   Reads the free RSS headline feeds of several news websites,
+   keeps the Lebanon stories, and writes them to news.json.
+   Arabic feeds fill the Arabic version of the site,
+   English feeds fill the English version.
 
-   Run it:   ANTHROPIC_API_KEY=your-key npm run update-news
+   Run it:   npm run update-news      (needs Node.js 18 or newer)
    On GitHub it runs by itself (see .github/workflows/update-news.yml).
 
-   Safety: if anything goes wrong, the old news.json is kept
-   unchanged, so the website never shows broken or empty news.
+   Safety: if no feed can be read, the old news.json is kept
+   unchanged, so the website never shows empty news.
    ========================================================= */
 
-import Anthropic from "@anthropic-ai/sdk";
 import { writeFileSync } from "node:fs";
 
 
 /* ---------- 1. Settings you can change ---------- */
 
-// How many news items to show on the site
-const NUMBER_OF_ITEMS = 6;
+// How many headlines to show per language
+const ITEMS_PER_LANGUAGE = 8;
 
-// Claude may only search these news websites.
-// Add or remove sites here (just the domain, no https://).
-const NEWS_SITES = [
-  "nna-leb.gov.lb",        // National News Agency (official)
-  "lorientlejour.com",     // L'Orient-Le Jour / L'Orient Today
-  "naharnet.com",
-  "annahar.com",
-  "lbcgroup.tv",
-  "mtv.com.lb",
-  "aljadeed.tv",
-  "reuters.com",
-  "apnews.com",
-  "aljazeera.com",
-  "aljazeera.net",
-  "bbc.com",
+// At most this many headlines from the same website, so the list stays varied
+const MAX_PER_SOURCE = 4;
+
+// Ignore stories older than this many hours
+const MAX_AGE_HOURS = 48;
+
+// The feeds to read.
+//   lang:          which version of the site it appears on ("ar" or "en")
+//   onlyLinksWith: keep only stories whose link contains one of these parts
+//                  (Lebanese sites put the section name in the link, e.g. /lebanon/)
+//   onlyLebanon:   true = keep only stories that mention Lebanon
+//                  (for international sites that cover the whole world)
+const FEEDS = [
+  // Lebanese news sites: only their Lebanon sections
+  { name: "LBCI",       lang: "ar", url: "https://www.lbcgroup.tv/Rss/latest-news/ar", onlyLinksWith: ["/news/lebanon"] },
+  { name: "LBCI",       lang: "en", url: "https://www.lbcgroup.tv/Rss/latest-news/en", onlyLinksWith: ["/news/lebanon"] },
+  { name: "النهار",      lang: "ar", url: "https://www.annahar.com/rss",                onlyLinksWith: ["/lebanon/"] },
+  // International news sites (Lebanon stories only)
+  { name: "BBC عربي",    lang: "ar", url: "https://feeds.bbci.co.uk/arabic/rss.xml",    onlyLebanon: true },
+  { name: "BBC News",   lang: "en", url: "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml", onlyLebanon: true },
+  { name: "الجزيرة",     lang: "ar", url: "https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bfdff8b8cab9", onlyLebanon: true },
+  { name: "Al Jazeera", lang: "en", url: "https://www.aljazeera.com/xml/rss/all.xml",   onlyLebanon: true },
 ];
 
-// The Claude model that does the work
-const MODEL = "claude-opus-5-5";
+// Words that mean a story is about Lebanon (used when onlyLebanon is true).
+// Avoid short words that hide inside other words (e.g. "صور" is inside "العصور"),
+// and words that also exist elsewhere (e.g. Iraq also has a "Hezbollah").
+const LEBANON_WORDS = [
+  "Lebanon", "Lebanese", "Beirut", "Bekaa", "Sidon",
+  "لبنان", "بيروت", "البقاع", "صيدا",
+];
 
 // Where to save the news (relative to the project folder)
 const NEWS_FILE = "news.json";
 
 
-/* ---------- 2. The instructions for Claude ---------- */
+/* ---------- 2. Reading one feed ---------- */
 
-const today = new Date().toISOString().slice(0, 10); // e.g. "2026-11-08"
+// Download a feed and turn each <item> into { title, summary, url, publishedAt }.
+async function readFeed(feed) {
+  const response = await fetch(feed.url, {
+    headers: { "User-Agent": "LebanonDaily-NewsBot/1.0 (+https://github.com/netmarketingom-ux/lebanon-daily)" },
+    signal: AbortSignal.timeout(20000), // give up after 20 seconds
+  });
+  if (!response.ok) throw new Error("HTTP " + response.status);
+  const xml = await response.text();
 
-const INSTRUCTIONS = `Today is ${today}. You are the news editor of "Lebanon Daily", a simple website
-that Lebanese people check on their phones for the dollar rate, fuel prices and the day's news.
+  const items = xml.match(/<item[\s>][\s\S]*?<\/item>/g) || [];
+  return items.map((item) => ({
+    title: cleanText(getTag(item, "title")),
+    summary: shorten(cleanText(getTag(item, "description")), 150),
+    url: cleanLink(cleanText(getTag(item, "link"))),
+    publishedAt: toIsoDate(getTag(item, "pubDate")),
+  }));
+}
 
-Use web search to find the ${NUMBER_OF_ITEMS} most important Lebanon news stories from the last 24-48 hours.
-Prefer stories that matter in daily life: the economy and prices, banks, electricity and fuel,
-government decisions, security alerts, weather and road conditions, schools.
+// The text inside <tag>...</tag> (or "" if missing)
+function getTag(xml, tag) {
+  const match = xml.match(new RegExp("<" + tag + "(?:\\s[^>]*)?>([\\s\\S]*?)</" + tag + ">"));
+  return match ? match[1] : "";
+}
 
-Rules:
-- Only include stories you actually found in your search results. Never invent a story, a number or a quote.
-- The url must be the exact address of the article you found.
-- Write neutrally and factually: report what happened and who said it, with no opinions or loaded words.
-- Each title: one short line. Each summary: one or two short sentences.
-- Write every title and summary in both Modern Standard Arabic and English.
-- If the same story appears on several sites, include it once.
-
-When you are done, call the save_news tool once with your final list.`;
-
-
-/* ---------- 3. The shape of the answer ---------- */
-
-// Claude must hand back its result through this "tool", which forces
-// the answer into exactly the structure that news.json uses.
-const bilingualText = {
-  type: "object",
-  properties: { ar: { type: "string" }, en: { type: "string" } },
-  required: ["ar", "en"],
-  additionalProperties: false,
-};
-
-const saveNewsTool = {
-  name: "save_news",
-  description: "Save the final list of news stories to the website.",
-  strict: true,
-  input_schema: {
-    type: "object",
-    properties: {
-      items: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            title: bilingualText,
-            summary: bilingualText,
-            source: { type: "string", description: "Name of the news website, e.g. Naharnet" },
-            url: { type: "string", description: "Exact article URL from the search results" },
-            publishedAt: { type: "string", description: "Publication date as YYYY-MM-DD" },
-          },
-          required: ["title", "summary", "source", "url", "publishedAt"],
-          additionalProperties: false,
-        },
-      },
-    },
-    required: ["items"],
-    additionalProperties: false,
-  },
-};
-
-const webSearchTool = {
-  type: "web_search_20260209",
-  name: "web_search",
-  max_uses: 8,                 // limits cost: at most 8 searches per run
-  allowed_domains: NEWS_SITES,
-};
-
-
-/* ---------- 4. Ask Claude ---------- */
-
-async function askClaude() {
-  const client = new Anthropic(); // reads ANTHROPIC_API_KEY from the environment
-  const messages = [{ role: "user", content: INSTRUCTIONS }];
-  const allContent = []; // everything Claude returned, used to check the links later
-
-  // Web searches can make Claude "pause" a long turn; we simply send it back
-  // so it continues. At most 5 rounds, so it can never loop forever.
-  for (let round = 1; round <= 5; round++) {
-    const response = await client.beta.messages.create({
-      model: MODEL,
-      max_tokens: 16000,
-      output_config: { effort: "medium" },
-      tools: [webSearchTool, saveNewsTool],
-      messages,
-      // If a request is declined by a safety check, retry on a fallback model
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-    });
-    allContent.push(...response.content);
-
-    const saveCall = response.content.find(
-      (block) => block.type === "tool_use" && block.name === "save_news"
-    );
-    if (saveCall) {
-      return { items: saveCall.input.items, allContent };
-    }
-
-    if (response.stop_reason === "pause_turn") {
-      messages.push({ role: "assistant", content: response.content });
-      continue;
-    }
-
-    if (response.stop_reason === "refusal") {
-      throw new Error("Claude declined the request: " + JSON.stringify(response.stop_details));
-    }
-    throw new Error("Claude finished without saving news (stop_reason: " + response.stop_reason + ")");
+// Remove CDATA wrappers, HTML tags and codes like &amp; so only plain text is left
+function cleanText(text) {
+  let s = text.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
+  s = s.replace(/<[^>]*>/g, " ");          // HTML tags
+  for (let i = 0; i < 2; i++) {             // twice, some feeds encode codes twice
+    s = s
+      .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+      .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+      .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+      .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&");
   }
-  throw new Error("Claude did not finish within 5 rounds");
+  return s.replace(/\s+/g, " ").trim();
+}
+
+// Cut long text at a word boundary and add "..."
+function shorten(text, maxLength) {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, text.lastIndexOf(" ", maxLength)) + "…";
+}
+
+// Remove tracking codes (utm_..., src=rss) from links
+function cleanLink(link) {
+  try {
+    const url = new URL(link);
+    for (const key of [...url.searchParams.keys()]) {
+      if (key.startsWith("utm_") || key === "src" || key === "at_medium" || key === "at_campaign" || key === "traffic_source") {
+        url.searchParams.delete(key);
+      }
+    }
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
+// Any date format -> "2026-11-14T10:29:25.000Z" (or "" if it can't be read)
+function toIsoDate(text) {
+  const date = new Date(cleanText(text));
+  return isNaN(date) ? "" : date.toISOString();
 }
 
 
-/* ---------- 5. Check the answer ---------- */
+/* ---------- 3. Choosing the stories ---------- */
 
-// Every link that appeared in the search results.
-// Only "..._tool_result" blocks count: those come from the search itself,
-// not from Claude's own writing, so a made-up link can never pass.
-function findAllUrls(content) {
-  const results = content.filter((block) => block.type.endsWith("_tool_result"));
-  const text = JSON.stringify(results);
-  return new Set((text.match(/https?:\/\/[^\s"\\<>]+/g) || []).map(normalizeUrl));
+function isAboutLebanon(item) {
+  const text = item.title + " " + item.summary;
+  return LEBANON_WORDS.some((word) => text.includes(word));
 }
 
-function normalizeUrl(url) {
-  return url.replace(/[#?].*$/, "").replace(/\/+$/, "").toLowerCase();
+function isRecent(item) {
+  const ageHours = (Date.now() - new Date(item.publishedAt)) / 3600000;
+  return ageHours >= -1 && ageHours <= MAX_AGE_HOURS; // -1 allows small clock differences
 }
 
-// Keep only items that look right and whose link really came from a search result.
-function checkItems(items, allContent) {
-  const seenUrls = findAllUrls(allContent);
-  const good = [];
-
+// Newest first, no repeats, at most MAX_PER_SOURCE per website
+function pickStories(items) {
+  items.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const picked = [];
+  const perSource = {};
+  const seen = new Set();
   for (const item of items) {
-    const url = item.url.trim();
-    const problems = [];
-    if (!url.startsWith("https://")) problems.push("link is not https");
-    if (!seenUrls.has(normalizeUrl(url))) problems.push("link was not in the search results");
-    if (!item.title.ar.trim() || !item.title.en.trim()) problems.push("missing title");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(item.publishedAt)) problems.push("bad date");
-
-    if (problems.length > 0) {
-      console.warn("Skipping \"" + item.title.en + "\": " + problems.join(", "));
-    } else {
-      good.push({ ...item, url });
-    }
+    if (picked.length >= ITEMS_PER_LANGUAGE) break;
+    if (seen.has(item.url) || seen.has(item.title)) continue;
+    if ((perSource[item.source] || 0) >= MAX_PER_SOURCE) continue;
+    picked.push(item);
+    seen.add(item.url);
+    seen.add(item.title);
+    perSource[item.source] = (perSource[item.source] || 0) + 1;
   }
-  return good.slice(0, NUMBER_OF_ITEMS);
+  return picked;
 }
 
 
-/* ---------- 6. Run ---------- */
+/* ---------- 4. Run ---------- */
 
 async function main() {
-  console.log("Asking Claude for today's news...");
-  const { items, allContent } = await askClaude();
-  const goodItems = checkItems(items, allContent);
+  const all = [];
+  let feedsRead = 0;
 
-  if (goodItems.length === 0) {
-    throw new Error("No usable news items, keeping the old news.json");
+  for (const feed of FEEDS) {
+    try {
+      const items = await readFeed(feed);
+      feedsRead++;
+      const kept = items.filter((item) =>
+        item.title &&
+        item.url.startsWith("https://") &&
+        item.publishedAt && isRecent(item) &&
+        (!feed.onlyLinksWith || feed.onlyLinksWith.some((part) => item.url.includes(part))) &&
+        (!feed.onlyLebanon || isAboutLebanon(item))
+      );
+      console.log(feed.name + " (" + feed.lang + "): " + items.length + " stories, kept " + kept.length);
+      kept.forEach((item) => all.push({ lang: feed.lang, source: feed.name, ...item }));
+    } catch (error) {
+      // One broken feed should not stop the others
+      console.warn("Could not read " + feed.name + " (" + feed.url + "): " + error.message);
+    }
   }
 
-  const news = {
-    lastUpdated: new Date().toISOString(), // e.g. "2026-11-08T07:00:00.000Z" (Z = UTC; the site shows local time)
-    items: goodItems,
-  };
+  if (feedsRead === 0) {
+    throw new Error("No feed could be read, keeping the old news.json");
+  }
+
+  const items = [
+    ...pickStories(all.filter((item) => item.lang === "ar")),
+    ...pickStories(all.filter((item) => item.lang === "en")),
+  ];
+  if (items.length === 0) {
+    throw new Error("No recent Lebanon stories found, keeping the old news.json");
+  }
+
+  const news = { lastUpdated: new Date().toISOString(), items };
   writeFileSync(NEWS_FILE, JSON.stringify(news, null, 2) + "\n");
-  console.log("Saved " + goodItems.length + " news items to " + NEWS_FILE + ":");
-  goodItems.forEach((item) => console.log(" - " + item.title.en + " (" + item.source + ")"));
+  console.log("Saved " + items.length + " headlines to " + NEWS_FILE);
 }
 
 main().catch((error) => {
-  if (error instanceof Anthropic.AuthenticationError) {
-    console.error("The API key is missing or wrong. Set ANTHROPIC_API_KEY.");
-  } else if (error instanceof Anthropic.RateLimitError) {
-    console.error("Rate limited by the API. It will try again next time.");
-  } else if (error instanceof Anthropic.APIError) {
-    console.error("API error " + error.status + ": " + error.message);
-  } else {
-    console.error(error.message);
-  }
-  // news.json was not touched; exit with an error so GitHub shows the run as failed
-  process.exit(1);
+  console.error(error.message);
+  process.exit(1); // news.json was not touched; GitHub shows the run as failed
 });

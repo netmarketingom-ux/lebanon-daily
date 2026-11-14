@@ -45,7 +45,7 @@ const TEXT = {
     diesel: 'مازوت',
     gasCylinder: 'قارورة غاز',
     fuelNote: 'الأسعار بالليرة اللبنانية',
-    disclaimer: 'الأسعار للاطلاع فقط وقد تختلف من مكان لآخر. ملخصات الأخبار مكتوبة آلياً بالذكاء الاصطناعي، راجع المصدر الأصلي.',
+    disclaimer: 'الأسعار للاطلاع فقط وقد تختلف من مكان لآخر. العناوين من مواقع الأخبار المذكورة، اضغط على العنوان لقراءة الخبر كاملاً.',
     newsTitle: 'أخبار اليوم',
     newsEmpty: 'لا توجد أخبار حالياً.',
     switchTo: 'English',
@@ -65,7 +65,7 @@ const TEXT = {
     diesel: 'Diesel',
     gasCylinder: 'Gas cylinder',
     fuelNote: 'Prices in Lebanese pounds (LBP)',
-    disclaimer: 'Prices are for information only and may vary by location. News summaries are written automatically by AI; check the original source.',
+    disclaimer: 'Prices are for information only and may vary by location. Headlines come from the news sites shown; tap a headline to read the full story.',
     newsTitle: "Today's news",
     newsEmpty: 'No news right now.',
     switchTo: 'العربية',
@@ -224,23 +224,20 @@ function drawChart(history) {
 
 /* ---------- 6. The news list ---------- */
 
-// "2026-11-08" -> "8 Nov 2026" (or the Arabic version).
-function formatDate(text) {
-  const locale = currentLang === 'ar' ? 'ar-LB-u-nu-latn' : 'en-GB';
-  return new Date(text + 'T12:00:00').toLocaleDateString(locale, {
-    day: 'numeric', month: 'short', year: 'numeric'
-  });
-}
-
-// Build one <li> per news item.
+// Build one <li> per headline in the current language.
+// Each item in news.json looks like:
+//   { "lang": "ar", "title": "...", "summary": "...", "source": "LBCI",
+//     "url": "https://...", "publishedAt": "2026-11-14T09:50:00.000Z" }
 // We use createElement + textContent (never innerHTML) so that text
-// coming from the news file can't inject code into the page.
+// coming from news websites can't inject code into the page.
 function renderNews() {
   if (!newsData) return;
   const list = document.getElementById('news-list');
   list.innerHTML = '';
 
-  const items = newsData.items || [];
+  const items = (newsData.items || []).filter(function (item) {
+    return item.lang === currentLang;
+  });
   if (items.length === 0) {
     const empty = document.createElement('li');
     empty.textContent = TEXT[currentLang].newsEmpty;
@@ -250,33 +247,36 @@ function renderNews() {
   items.forEach(function (item) {
     const li = document.createElement('li');
 
-    // Title, linking to the original article in a new tab
+    // Headline, linking to the original article in a new tab
     const title = document.createElement('h3');
     const link = document.createElement('a');
-    link.textContent = item.title[currentLang];
+    link.textContent = item.title;
     if (String(item.url).startsWith('https://')) {
       link.href = item.url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
     }
     title.appendChild(link);
+    li.appendChild(title);
 
-    const summary = document.createElement('p');
-    summary.textContent = item.summary[currentLang];
+    // Short summary, if the website gave one
+    if (item.summary) {
+      const summary = document.createElement('p');
+      summary.textContent = item.summary;
+      li.appendChild(summary);
+    }
 
-    // "Naharnet · 8 Nov 2026"
+    // "LBCI · 14 Nov 2026, 11:50"
     // Each part sits in its own <bdi> so English and Arabic don't get mixed up.
     const meta = document.createElement('span');
     meta.className = 'news-meta';
     const source = document.createElement('bdi');
     source.textContent = item.source;
     const date = document.createElement('bdi');
-    date.textContent = formatDate(item.publishedAt);
+    date.textContent = formatDateTime(item.publishedAt);
     meta.append(source, ' · ', date);
-
-    li.appendChild(title);
-    li.appendChild(summary);
     li.appendChild(meta);
+
     list.appendChild(li);
   });
 
