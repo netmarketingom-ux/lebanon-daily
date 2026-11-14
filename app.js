@@ -52,11 +52,20 @@ const TEXT = {
     goldNote: 'أسعار عالمية. سعر المحلات في لبنان يشمل المصنعية وقد يختلف.',
     forexTitle: 'أسعار العملات',
     forexPer: '1 دولار أميركي يساوي:',
-    forexNote: 'الأسعار الرسمية للبنك المركزي الأوروبي ليوم',
+    mainCurrencies: 'العملات الرئيسية',
+    arabCurrencies: 'العملات العربية',
+    forexNote: 'أسعار مرجعية تُحدَّث يومياً، ليوم',
+    forexMarketNote: 'في بعض الدول (مثل سوريا والسودان ومصر وليبيا) قد يختلف سعر السوق عن السعر الرسمي.',
+    ratesBy: 'الأسعار من',
     fixed: 'سعر ثابت',
     currencies: {
       EUR: 'يورو', GBP: 'جنيه إسترليني', CHF: 'فرنك سويسري',
-      TRY: 'ليرة تركية', CAD: 'دولار كندي', AUD: 'دولار أسترالي', LBP: 'ليرة لبنانية'
+      TRY: 'ليرة تركية', CAD: 'دولار كندي', AUD: 'دولار أسترالي', LBP: 'ليرة لبنانية',
+      SAR: 'ريال سعودي', AED: 'درهم إماراتي', KWD: 'دينار كويتي', QAR: 'ريال قطري',
+      BHD: 'دينار بحريني', OMR: 'ريال عُماني', JOD: 'دينار أردني', IQD: 'دينار عراقي',
+      SYP: 'ليرة سورية', EGP: 'جنيه مصري', YER: 'ريال يمني', SDG: 'جنيه سوداني',
+      LYD: 'دينار ليبي', TND: 'دينار تونسي', DZD: 'دينار جزائري', MAD: 'درهم مغربي',
+      MRU: 'أوقية موريتانية', SOS: 'شلن صومالي', DJF: 'فرنك جيبوتي', KMF: 'فرنك قمري'
     },
     lastUpdated: 'آخر تحديث:',
     fuelTitle: 'أسعار المحروقات اليوم',
@@ -86,11 +95,20 @@ const TEXT = {
     goldNote: 'International prices. Shop prices in Lebanon include workmanship and may differ.',
     forexTitle: 'Exchange rates',
     forexPer: '1 US dollar equals:',
-    forexNote: 'Official European Central Bank rates for',
+    mainCurrencies: 'Main currencies',
+    arabCurrencies: 'Arab currencies',
+    forexNote: 'Reference rates, updated daily, for',
+    forexMarketNote: 'In some countries (such as Syria, Sudan, Egypt and Libya) the market rate can differ from the official rate.',
+    ratesBy: 'Rates by',
     fixed: 'fixed rate',
     currencies: {
       EUR: 'Euro', GBP: 'British pound', CHF: 'Swiss franc',
-      TRY: 'Turkish lira', CAD: 'Canadian dollar', AUD: 'Australian dollar', LBP: 'Lebanese pound'
+      TRY: 'Turkish lira', CAD: 'Canadian dollar', AUD: 'Australian dollar', LBP: 'Lebanese pound',
+      SAR: 'Saudi riyal', AED: 'UAE dirham', KWD: 'Kuwaiti dinar', QAR: 'Qatari riyal',
+      BHD: 'Bahraini dinar', OMR: 'Omani rial', JOD: 'Jordanian dinar', IQD: 'Iraqi dinar',
+      SYP: 'Syrian pound', EGP: 'Egyptian pound', YER: 'Yemeni rial', SDG: 'Sudanese pound',
+      LYD: 'Libyan dinar', TND: 'Tunisian dinar', DZD: 'Algerian dinar', MAD: 'Moroccan dirham',
+      MRU: 'Mauritanian ouguiya', SOS: 'Somali shilling', DJF: 'Djiboutian franc', KMF: 'Comorian franc'
     },
     lastUpdated: 'Last updated:',
     fuelTitle: "Today's fuel prices",
@@ -218,37 +236,51 @@ function renderMetals() {
 
 /* ---------- 6. Exchange rates card ---------- */
 
-// Builds one row per currency: name, value of 1 US dollar, change since the day before.
+// Builds the two lists (main and Arab currencies). Each row shows the
+// currency name, how much of it 1 US dollar buys, and the change since the day before.
 function renderForex() {
   if (!marketsData || !marketsData.forex) return;
   const forex = marketsData.forex;
   const words = TEXT[currentLang];
-  const list = document.getElementById('forex-list');
-  list.innerHTML = '';
 
-  Object.keys(forex.rates).forEach(function (code) {
-    const value = forex.rates[code];
-    // Small numbers get more decimals: 0.9048 EUR, but 50.37 TRY
-    const decimals = value < 10 ? 4 : 2;
-    const change = document.createElement('span');
-    showChange(change, forex.previous && forex.previous[code], value, false);
-    list.appendChild(makeRateRow(code, words.currencies[code] || code, formatNumber(value, decimals) + ' ' + code, change));
-  });
+  fillRateList('forex-main', forex.main || [], forex);
 
-  // The Lebanese pound, from data.json (it is fixed, so no change is shown)
+  // Arab currencies, plus the Lebanese pound from data.json (fixed, so no change shown)
+  const arabList = fillRateList('forex-arab', forex.arab || [], forex);
   if (siteData && siteData.lbpRate) {
     const fixed = document.createElement('span');
     fixed.className = 'change';
     fixed.textContent = words.fixed;
-    list.appendChild(makeRateRow('LBP', words.currencies.LBP, formatNumber(siteData.lbpRate) + ' LBP', fixed));
+    arabList.prepend(makeRateRow(words.currencies.LBP, formatNumber(siteData.lbpRate) + ' LBP', fixed));
   }
 
   setText('forex-date', formatDate(forex.date));
   setText('forex-updated', formatDateTime(forex.updatedAt));
 }
 
-// One <li> of the exchange rates list
-function makeRateRow(code, name, valueText, changeElement) {
+// Fill one <ul> with a row per currency code, and return it
+function fillRateList(listId, codes, forex) {
+  const list = document.getElementById(listId);
+  list.innerHTML = '';
+  codes.forEach(function (code) {
+    const value = forex.rates[code];
+    const change = document.createElement('span');
+    showChange(change, forex.previous && forex.previous[code], value, false);
+    const name = TEXT[currentLang].currencies[code] || code;
+    list.appendChild(makeRateRow(name, formatRate(value) + ' ' + code, change));
+  });
+  return list;
+}
+
+// Small numbers get more decimals: 0.3113 KWD, 3.7500 SAR, 53.44 EGP, 1,514 IQD
+function formatRate(value) {
+  if (value < 10) return formatNumber(value, 4);
+  if (value < 1000) return formatNumber(value, 2);
+  return formatNumber(value);
+}
+
+// One <li> of an exchange rates list
+function makeRateRow(name, valueText, changeElement) {
   const li = document.createElement('li');
   const label = document.createElement('span');
   label.textContent = name;

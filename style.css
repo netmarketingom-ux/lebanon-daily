@@ -151,6 +151,19 @@ body {
   unicode-bidi: isolate;   /* keeps the number and currency together */
 }
 
+/* Shorter rows for long lists (exchange rates) */
+.price-list.compact li { padding: 9px 0; font-size: 1rem; }
+.price-list.compact strong { font-size: 1.1rem; }
+
+/* The two currency groups: one under the other on phones, side by side on big screens */
+.forex-groups { display: grid; gap: 8px 32px; }
+.group-title {
+  margin: 16px 0 0;
+  font-size: 1rem;
+  color: var(--accent);
+}
+.sub-text a { color: var(--accent); }
+
 /* A value with its change underneath, e.g. "0.9048 EUR" / "▲ 0.26%" */
 .rate-value {
   display: flex;
@@ -237,13 +250,12 @@ body {
 }
 
 /* ----- 10. Bigger screens ----- */
-/* Tablets: two cards side by side, fuel and news full width */
+/* Tablets and computers: gold and fuel side by side, exchange rates and news full width */
 @media (min-width: 768px) {
-  .container { grid-template-columns: 1fr 1fr; align-items: start; }
-  .fuel-card, .news-card, .error { grid-column: 1 / -1; }
-}
-/* Computers: the three price cards side by side, news full width */
-@media (min-width: 1100px) {
-  .container { max-width: 1240px; grid-template-columns: 1fr 1fr 1fr; }
-  .fuel-card { grid-column: auto; }
+  .container { max-width: 1240px; grid-template-columns: 1fr 1fr; align-items: start; }
+  .forex-card, .news-card, .error { grid-column: 1 / -1; }
+  .forex-groups { grid-template-columns: 1fr 2fr; }
+  /* the Arab list is long, so it gets two columns of its own */
+  #forex-arab { columns: 2; column-gap: 32px; }
+  #forex-arab li { break-inside: avoid; }
 }

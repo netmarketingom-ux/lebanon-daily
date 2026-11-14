@@ -81,17 +81,24 @@ If the page shows an error after editing, you probably broke the JSON format
   in US dollars. The website works out the price per gram for 24k, 21k and 18k gold
   (24k = ounce price ÷ 31.1; 21k = 21/24 of that; 18k = 18/24). Shop prices in Lebanon are
   higher because they include workmanship; the card says so.
-- **Exchange rates** come from https://frankfurter.dev: the official daily rates of the
-  European Central Bank, published once per working day (none at weekends).
-- **The change** (▲ / ▼ %) compares with the day before.
+- **Exchange rates** come from https://www.exchangerate-api.com (free "open access" rates,
+  updated once a day). The card shows how much of each currency 1 US dollar buys, in two
+  groups: main currencies (euro, pound, franc, Turkish lira, Canadian and Australian dollar)
+  and all Arab currencies (Gulf, Levant, Iraq, Egypt, Yemen, Sudan, North Africa, Somalia,
+  Djibouti, Comoros). The Lebanese pound is shown from `data.json` because it is fixed.
+  Their free terms ask for a credit link on the site; the card shows "Rates by ExchangeRate-API".
+  These are reference rates: in some countries (e.g. Syria, Sudan, Egypt, Libya) the street
+  rate can differ, and the card says so.
+- **The change** (▲ / ▼ %) compares with the day before. The free sources give no history,
+  so the updater keeps one entry per day itself; the change appears from the second day.
 - **The gold chart:** gold-api.com only gives today's price, so the updater keeps its own
   history, one price per day. The chart appears on the second day and shows a full week
   after 7 days.
 - If a source is down, its old numbers stay on the site.
 
-To change which currencies are shown, edit `CURRENCIES` at the top of `agent/update-markets.mjs`
-(any currency the European Central Bank publishes, e.g. JPY or SEK), and add its name in both
-languages to `currencies` in the `TEXT` object in `app.js`.
+To change which currencies are shown, edit `MAIN_CURRENCIES` or `ARAB_CURRENCIES` at the top of
+`agent/update-markets.mjs` (any 3-letter currency code, e.g. JPY or CNY), and add its name in
+both languages to `currencies` in the `TEXT` object in `app.js`.
 
 These are prices for information only. The site does not give buy/sell advice.
 

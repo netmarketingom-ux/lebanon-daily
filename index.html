@@ -69,23 +69,7 @@
       </p>
     </section>
 
-    <!-- ===== Card 2: Exchange rates =====
-         app.js builds the list from markets.json (and the LBP rate from data.json). -->
-    <section class="card">
-      <h2 class="card-title" data-i18n="forexTitle">أسعار العملات</h2>
-      <p class="sub-text" data-i18n="forexPer">1 دولار أميركي يساوي:</p>
-      <ul id="forex-list" class="price-list"></ul>
-      <p class="sub-text">
-        <span data-i18n="forexNote">الأسعار الرسمية للبنك المركزي الأوروبي ليوم</span>
-        <bdi id="forex-date">—</bdi>
-      </p>
-      <p class="updated">
-        <span data-i18n="lastUpdated">آخر تحديث:</span>
-        <span id="forex-updated">—</span>
-      </p>
-    </section>
-
-    <!-- ===== Card 3: Fuel prices ===== -->
+    <!-- ===== Card 2: Fuel prices ===== -->
     <section class="card fuel-card">
       <h2 class="card-title" data-i18n="fuelTitle">أسعار المحروقات اليوم</h2>
 
@@ -112,6 +96,39 @@
       <p class="updated">
         <span data-i18n="lastUpdated">آخر تحديث:</span>
         <span id="fuel-updated">—</span>
+      </p>
+    </section>
+
+    <!-- ===== Card 3: Exchange rates =====
+         app.js builds both lists from markets.json (and the LBP rate from data.json). -->
+    <section class="card forex-card">
+      <h2 class="card-title" data-i18n="forexTitle">أسعار العملات</h2>
+      <p class="sub-text" data-i18n="forexPer">1 دولار أميركي يساوي:</p>
+
+      <div class="forex-groups">
+        <div>
+          <h3 class="group-title" data-i18n="mainCurrencies">العملات الرئيسية</h3>
+          <ul id="forex-main" class="price-list compact"></ul>
+        </div>
+        <div>
+          <h3 class="group-title" data-i18n="arabCurrencies">العملات العربية</h3>
+          <ul id="forex-arab" class="price-list compact"></ul>
+        </div>
+      </div>
+
+      <p class="sub-text">
+        <span data-i18n="forexNote">أسعار مرجعية تُحدَّث يومياً، ليوم</span>
+        <bdi id="forex-date">—</bdi>.
+        <span data-i18n="forexMarketNote">في بعض الدول (مثل سوريا والسودان ومصر وليبيا) قد يختلف سعر السوق عن السعر الرسمي.</span>
+      </p>
+      <!-- The free exchange rate service asks for this credit link -->
+      <p class="sub-text">
+        <span data-i18n="ratesBy">الأسعار من</span>
+        <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a>
+      </p>
+      <p class="updated">
+        <span data-i18n="lastUpdated">آخر تحديث:</span>
+        <span id="forex-updated">—</span>
       </p>
     </section>
 

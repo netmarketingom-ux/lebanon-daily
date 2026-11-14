@@ -4,7 +4,8 @@
    and writes them to markets.json.
 
      Gold & silver:  https://gold-api.com   (live international price, in US dollars)
-     Exchange rates: https://frankfurter.dev (official daily rates of the European Central Bank)
+     Exchange rates: https://www.exchangerate-api.com (free "open access" rates, updated once a day;
+                     their terms ask for a credit link on the site, which the page shows)
 
    Run it:   npm run update-markets      (needs Node.js 18 or newer)
    On GitHub it runs by itself (see .github/workflows/update-data.yml).
@@ -17,9 +18,16 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 /* ---------- 1. Settings you can change ---------- */
 
-// Currencies to show, as "1 US dollar = ... of this currency".
-// Any code the European Central Bank publishes works (EUR, GBP, CHF, TRY, CAD, AUD, JPY, ...).
-const CURRENCIES = ["EUR", "GBP", "CHF", "TRY", "CAD", "AUD"];
+// Currencies to show, as "1 US dollar = ... of this currency", in two groups.
+// Any 3-letter currency code works (JPY, CNY, SEK, ...). Add its name in app.js too.
+const MAIN_CURRENCIES = ["EUR", "GBP", "CHF", "TRY", "CAD", "AUD"];
+const ARAB_CURRENCIES = [
+  "SAR", "AED", "KWD", "QAR", "BHD", "OMR",   // Gulf
+  "JOD", "IQD", "SYP", "EGP", "YER",          // Levant, Iraq, Egypt, Yemen
+  "SDG", "LYD", "TND", "DZD", "MAD", "MRU",   // Sudan and North Africa
+  "SOS", "DJF", "KMF",                        // Somalia, Djibouti, Comoros
+];
+// (The Lebanese pound is shown from data.json, because its rate is fixed.)
 
 // How many days to keep for the charts
 const HISTORY_DAYS = 7;
@@ -78,24 +86,34 @@ async function updateMetals(old) {
 
 /* ---------- 4. Exchange rates ---------- */
 
-// Frankfurter gives a range of days, so the history comes ready-made.
-// The European Central Bank publishes once per working day (around 4pm in Frankfurt).
-async function updateForex() {
-  const start = dayOf(new Date(Date.now() - 14 * 24 * 3600 * 1000)); // two weeks back covers weekends
-  const data = await getJson(
-    "https://api.frankfurter.dev/v1/" + start + "..?base=USD&symbols=" + CURRENCIES.join(",")
-  );
+// The free rates come once a day with no history, so (like gold) we keep
+// our own: one entry per day, used for the "change since the day before".
+async function updateForex(old) {
+  const data = await getJson("https://open.er-api.com/v6/latest/USD");
+  if (data.result !== "success") throw new Error("Exchange rate service said: " + data.result);
 
-  const days = Object.keys(data.rates).sort().slice(-HISTORY_DAYS);
-  if (days.length < 2) throw new Error("Not enough exchange rate data");
-  const history = days.map((date) => ({ date, ...data.rates[date] }));
+  const rates = {};
+  for (const code of MAIN_CURRENCIES.concat(ARAB_CURRENCIES)) {
+    if (data.rates[code] > 0) rates[code] = data.rates[code];
+    else console.warn("No rate for " + code);
+  }
+
+  const date = dayOf(new Date(data.time_last_update_unix * 1000)); // the day these rates are for
+  // Start a fresh history if the old file used a different source
+  const oldHistory = old && old.source === "exchangerate-api" && old.history ? old.history : [];
+  const history = oldHistory.filter((day) => day.date !== date);
+  history.push({ date, ...rates });
+  const previous = history.length >= 2 ? history[history.length - 2] : null;
 
   return {
+    source: "exchangerate-api",
     updatedAt: new Date().toISOString(),
-    date: days[days.length - 1],                 // the day these rates are for
-    rates: data.rates[days[days.length - 1]],    // latest
-    previous: data.rates[days[days.length - 2]], // the working day before (for the change)
-    history,
+    date,
+    main: MAIN_CURRENCIES.filter((code) => rates[code]),
+    arab: ARAB_CURRENCIES.filter((code) => rates[code]),
+    rates,
+    previous,             // the day before (for the change), or null at first
+    history: history.slice(-HISTORY_DAYS),
   };
 }
 
@@ -121,8 +139,8 @@ async function main() {
   }
 
   try {
-    result.forex = await updateForex();
-    console.log("Exchange rates for " + result.forex.date + ": " + JSON.stringify(result.forex.rates));
+    result.forex = await updateForex(old.forex);
+    console.log("Exchange rates for " + result.forex.date + ": " + Object.keys(result.forex.rates).length + " currencies");
   } catch (error) {
     failures++;
     console.warn("Could not update exchange rates (keeping old numbers): " + error.message);
