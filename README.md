@@ -17,6 +17,9 @@ It works in Arabic (the default, right-to-left) and English.
 | `agent/update-markets.mjs` | Fetches gold, silver and exchange rates (see "Automatic prices") |
 | `agent/update-news.mjs` | Collects the news from RSS feeds (see "Automatic news") |
 | `.github/workflows/update-data.yml` | Runs both updaters on GitHub every hour |
+| `ads.js`     | **Google AdSense settings.** Paste your IDs here to turn ads on   |
+| `privacy.html` | Privacy policy page (required by AdSense)                        |
+| `ads.txt`    | Tells advertisers that Google may sell ads on your site          |
 | `package.json` | Only adds the `npm run update-...` commands. Nothing to install.  |
 
 ## How to open and test it on your computer
@@ -142,6 +145,45 @@ npm run update-news
 ```
 
 Then refresh the website to see the new prices and headlines.
+
+## Google ads (AdSense)
+
+The page has three ad spaces: under the header, between the price cards and the exchange
+rates, and after the news. Each is labelled "إعلان / Advertisement" and reserves its height,
+so the page doesn't jump when an ad loads. Until you fill in `ads.js`, they are hidden and no
+Google code is loaded.
+
+**To see where ads will appear**, add `?ads=preview` to the address, e.g.
+`http://localhost:8000/?ads=preview`. Dashed boxes show each ad space.
+
+### Before you apply: things AdSense needs
+
+1. **Your own domain name** (like `lebanondaily.com`, about $10–15 a year). AdSense does not
+   accept a `github.io` address, and `ads.txt` must sit at the root of your domain.
+   With GitHub Pages: buy the domain, then **Settings → Pages → Custom domain**.
+2. **A privacy policy**: already done, see `privacy.html`. Replace `[CONTACT EMAIL]` in it
+   (twice) with an email address visitors can use.
+3. **Enough original content.** Google often rejects sites that only show prices and headlines
+   collected from other sites. Adding some content of your own (short daily commentary, guides
+   such as "how gold prices work in Lebanon") makes approval much more likely.
+
+### Turning ads on
+
+1. Sign up at https://adsense.google.com and add your site (your own domain).
+2. **Verify the site:** AdSense gives you a publisher ID like `ca-pub-1234567890123456`.
+   - In `index.html`, near the top, delete the two lines that say `DELETE-THIS-LINE`, and put
+     your publisher ID in place of `ca-pub-XXXXXXXXXXXXXXXX`.
+   - In `ads.txt`, replace the example line with the exact line AdSense shows you, and remove
+     the `#` in front of it.
+3. **Wait for approval** (from a few days to a few weeks).
+4. **Create the ad units:** in AdSense, **Ads → By ad unit → Display ads**, choose
+   "Responsive", and make three units (for example "top", "middle", "bottom").
+5. **Paste the IDs into `ads.js`:** your publisher ID in `client`, and each unit's slot number
+   in `top`, `middle` and `bottom`. Leave a slot empty to keep that ad space hidden.
+6. **Visitors from Europe and the UK:** Google requires a consent message for them. Turn on
+   AdSense's own free one: **Privacy & messaging → European regulations → Create message**.
+
+Never click your own ads, or ask others to: Google closes accounts for it.
 
 ## Changing the wording
 

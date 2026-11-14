@@ -1,0 +1,5 @@
+# ads.txt - tells advertisers which ad networks may sell ads on this site.
+# When your AdSense account is approved, replace the line below with the exact
+# line AdSense shows you (Sites -> your site -> ads.txt), then remove the "#" in front of it.
+# It looks like this, with your own pub- number:
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

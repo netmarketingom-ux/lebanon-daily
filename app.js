@@ -78,6 +78,8 @@ const TEXT = {
     newsTitle: 'أخبار اليوم',
     newsEmpty: 'لا توجد أخبار حالياً.',
     disclaimer: 'الأسعار للاطلاع فقط وليست نصيحة استثمارية، وقد تختلف من مكان لآخر. العناوين من مواقع الأخبار المذكورة، اضغط على العنوان لقراءة الخبر كاملاً.',
+    adLabel: 'إعلان',
+    privacyLink: 'سياسة الخصوصية',
     switchTo: 'English',
     pageTitle: 'لبنان اليوم',
     error: 'تعذّر تحميل الأسعار. إذا فتحت الملف مباشرة، شغّل خادماً محلياً (راجع README.md).'
@@ -121,6 +123,8 @@ const TEXT = {
     newsTitle: "Today's news",
     newsEmpty: 'No news right now.',
     disclaimer: 'Prices are for information only, not investment advice, and may vary by location. Headlines come from the news sites shown; tap a headline to read the full story.',
+    adLabel: 'Advertisement',
+    privacyLink: 'Privacy policy',
     switchTo: 'العربية',
     pageTitle: 'Lebanon Daily',
     error: 'Could not load prices. If you opened the file directly, run a local server (see README.md).'

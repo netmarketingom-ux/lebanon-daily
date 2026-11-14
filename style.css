@@ -249,9 +249,55 @@ body {
   padding: 8px 16px 32px;
 }
 
+/* ----- Ad spaces (Google AdSense) -----
+   Each space reserves its height so the page doesn't jump when an ad loads. */
+.ad-slot {
+  grid-column: 1 / -1;     /* always full width */
+  text-align: center;
+  overflow: hidden;
+}
+.ad-slot[hidden] { display: none; }
+.ad-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.ad-top    { min-height: 120px; }   /* phone banner (320x100) + label */
+.ad-middle,
+.ad-bottom { min-height: 280px; }   /* rectangle (300x250) + label */
+
+/* Preview mode (?ads=preview): dashed boxes showing where ads go */
+.ad-preview-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.9rem;
+  direction: ltr;
+}
+.ad-top .ad-preview-box { height: 100px; }
+.ad-middle .ad-preview-box,
+.ad-bottom .ad-preview-box { height: 250px; }
+
+.site-footer a { color: var(--muted); }
+
+/* Text pages (privacy policy) */
+.home-link { color: inherit; text-decoration: none; }
+.page { max-width: 760px; grid-template-columns: 1fr !important; }
+.page h2 { margin-top: 0; }
+.page h3 { margin: 20px 0 4px; font-size: 1.05rem; }
+.page p { margin: 0 0 10px; }
+.page a { color: var(--accent); }
+.back { text-align: center; }
+
 /* ----- 10. Bigger screens ----- */
 /* Tablets and computers: gold and fuel side by side, exchange rates and news full width */
 @media (min-width: 768px) {
+  .ad-top { min-height: 115px; }               /* wide banner (728x90) + label */
+  .ad-top .ad-preview-box { height: 90px; }
   .container { max-width: 1240px; grid-template-columns: 1fr 1fr; align-items: start; }
   .forex-card, .news-card, .error { grid-column: 1 / -1; }
   .forex-groups { grid-template-columns: 1fr 2fr; }

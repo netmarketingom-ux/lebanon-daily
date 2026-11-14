@@ -13,6 +13,13 @@
   <title>Lebanon Daily | لبنان اليوم</title>
   <meta name="description" content="Gold and silver prices, exchange rates, fuel prices and news for Lebanon, updated automatically.">
   <link rel="stylesheet" href="style.css">
+
+  <!-- GOOGLE ADSENSE (site verification): when AdSense asks you to verify the site,
+       delete the two lines that say DELETE-THIS-LINE, and put your own publisher ID
+       (the same one as in ads.js) in place of ca-pub-XXXXXXXXXXXXXXXX. -->
+  <!-- DELETE-THIS-LINE
+  <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXXXX">
+  DELETE-THIS-LINE -->
 </head>
 <body>
 
@@ -23,6 +30,12 @@
   </header>
 
   <main class="container">
+
+    <!-- ===== Ad space: top (under the header) =====
+         Hidden until you set it up in ads.js. -->
+    <aside class="ad-slot ad-top" data-slot="top" hidden>
+      <span class="ad-label" data-i18n="adLabel">إعلان</span>
+    </aside>
 
     <!-- ===== Card 1: Gold & silver =====
          app.js fills the numbers from markets.json. -->
@@ -99,6 +112,12 @@
       </p>
     </section>
 
+    <!-- ===== Ad space: middle (between the price cards and the exchange rates) =====
+         Hidden until you set it up in ads.js. -->
+    <aside class="ad-slot ad-middle" data-slot="middle" hidden>
+      <span class="ad-label" data-i18n="adLabel">إعلان</span>
+    </aside>
+
     <!-- ===== Card 3: Exchange rates =====
          app.js builds both lists from markets.json (and the LBP rate from data.json). -->
     <section class="card forex-card">
@@ -143,15 +162,23 @@
       </p>
     </section>
 
+    <!-- ===== Ad space: bottom (after the news) =====
+         Hidden until you set it up in ads.js. -->
+    <aside class="ad-slot ad-bottom" data-slot="bottom" hidden>
+      <span class="ad-label" data-i18n="adLabel">إعلان</span>
+    </aside>
+
     <!-- Shown only if a data file could not be loaded -->
     <p id="error-box" class="error" hidden></p>
 
   </main>
 
   <footer class="site-footer">
+    <p><a href="privacy.html" data-i18n="privacyLink">سياسة الخصوصية</a></p>
     <p data-i18n="disclaimer">الأسعار للاطلاع فقط وليست نصيحة استثمارية، وقد تختلف من مكان لآخر. العناوين من مواقع الأخبار المذكورة، اضغط على العنوان لقراءة الخبر كاملاً.</p>
   </footer>
 
   <script src="app.js"></script>
+  <script src="ads.js"></script>
 </body>
 </html>
