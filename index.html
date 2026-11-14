@@ -11,7 +11,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lebanon Daily | لبنان اليوم</title>
-  <meta name="description" content="USD to LBP market rate and fuel prices in Lebanon, updated daily.">
+  <meta name="description" content="Gold and silver prices, exchange rates, fuel prices and news for Lebanon, updated automatically.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,28 +24,69 @@
 
   <main class="container">
 
-    <!-- ===== Card 1: Dollar rate ===== -->
+    <!-- ===== Card 1: Gold & silver =====
+         app.js fills the numbers from markets.json. -->
     <section class="card">
-      <h2 class="card-title" data-i18n="dollarTitle">سعر الدولار في السوق</h2>
+      <h2 class="card-title" data-i18n="goldTitle">الذهب والفضة</h2>
 
       <p class="big-number">
-        <span id="dollar-rate">—</span>
-        <span class="unit" data-i18n="lbp">ل.ل.</span>
+        <span id="gold-ounce">—</span>
+        <span id="gold-change" class="change"></span>
       </p>
-      <p class="sub-text" data-i18n="perDollar">مقابل 1 دولار أميركي</p>
+      <p class="sub-text" data-i18n="goldOunceNote">سعر أونصة الذهب (31.1 غرام) بالدولار الأميركي</p>
 
-      <!-- 7-day chart. app.js draws an SVG inside this box. -->
-      <h3 class="chart-title" data-i18n="chartTitle">آخر 7 أيام</h3>
-      <div id="dollar-chart" class="chart" role="img" aria-label="Dollar rate chart"></div>
+      <ul class="price-list">
+        <li>
+          <span data-i18n="gold24">غرام ذهب عيار 24</span>
+          <strong id="gold24">—</strong>
+        </li>
+        <li>
+          <span data-i18n="gold21">غرام ذهب عيار 21</span>
+          <strong id="gold21">—</strong>
+        </li>
+        <li>
+          <span data-i18n="gold18">غرام ذهب عيار 18</span>
+          <strong id="gold18">—</strong>
+        </li>
+        <li>
+          <span data-i18n="silverOunce">أونصة فضة</span>
+          <span class="rate-value">
+            <strong id="silver-ounce">—</strong>
+            <span id="silver-change" class="change"></span>
+          </span>
+        </li>
+      </ul>
 
+      <!-- 7-day gold chart. app.js draws an SVG inside this box. -->
+      <h3 class="chart-title" data-i18n="goldChartTitle">سعر أونصة الذهب، آخر 7 أيام</h3>
+      <div id="gold-chart" class="chart" role="img" aria-label="Gold price chart"></div>
+      <p id="gold-chart-soon" class="sub-text" data-i18n="chartSoon" hidden>يظهر الرسم البياني بعد يومين من جمع الأسعار.</p>
+
+      <p class="sub-text" data-i18n="goldNote">أسعار عالمية. سعر المحلات في لبنان يشمل المصنعية وقد يختلف.</p>
       <p class="updated">
         <span data-i18n="lastUpdated">آخر تحديث:</span>
-        <span id="dollar-updated">—</span>
+        <span id="metals-updated">—</span>
       </p>
     </section>
 
-    <!-- ===== Card 2: Fuel prices ===== -->
+    <!-- ===== Card 2: Exchange rates =====
+         app.js builds the list from markets.json (and the LBP rate from data.json). -->
     <section class="card">
+      <h2 class="card-title" data-i18n="forexTitle">أسعار العملات</h2>
+      <p class="sub-text" data-i18n="forexPer">1 دولار أميركي يساوي:</p>
+      <ul id="forex-list" class="price-list"></ul>
+      <p class="sub-text">
+        <span data-i18n="forexNote">الأسعار الرسمية للبنك المركزي الأوروبي ليوم</span>
+        <bdi id="forex-date">—</bdi>
+      </p>
+      <p class="updated">
+        <span data-i18n="lastUpdated">آخر تحديث:</span>
+        <span id="forex-updated">—</span>
+      </p>
+    </section>
+
+    <!-- ===== Card 3: Fuel prices ===== -->
+    <section class="card fuel-card">
       <h2 class="card-title" data-i18n="fuelTitle">أسعار المحروقات اليوم</h2>
 
       <ul class="price-list">
@@ -74,7 +115,7 @@
       </p>
     </section>
 
-    <!-- ===== Card 3: News =====
+    <!-- ===== Card 4: News =====
          app.js fills the list from news.json. -->
     <section class="card news-card">
       <h2 class="card-title" data-i18n="newsTitle">أخبار اليوم</h2>
@@ -85,13 +126,13 @@
       </p>
     </section>
 
-    <!-- Shown only if data.json could not be loaded -->
+    <!-- Shown only if a data file could not be loaded -->
     <p id="error-box" class="error" hidden></p>
 
   </main>
 
   <footer class="site-footer">
-    <p data-i18n="disclaimer">الأسعار للاطلاع فقط وقد تختلف من مكان لآخر. العناوين من مواقع الأخبار المذكورة، اضغط على العنوان لقراءة الخبر كاملاً.</p>
+    <p data-i18n="disclaimer">الأسعار للاطلاع فقط وليست نصيحة استثمارية، وقد تختلف من مكان لآخر. العناوين من مواقع الأخبار المذكورة، اضغط على العنوان لقراءة الخبر كاملاً.</p>
   </footer>
 
   <script src="app.js"></script>

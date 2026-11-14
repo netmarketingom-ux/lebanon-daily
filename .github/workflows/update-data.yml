@@ -1,0 +1,50 @@
+# Every hour: updates gold, silver and exchange rates (markets.json)
+# and the news headlines (news.json), then saves whatever changed.
+# Free: no API key or secret needed.
+# You can also run it by hand: GitHub -> Actions -> "Update data" -> "Run workflow".
+name: Update data
+
+on:
+  schedule:
+    # Times are UTC: every hour, at 17 minutes past.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # lets the job commit the updated files
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # continue-on-error: if one source is down, the other still gets saved
+      - name: Gold, silver and exchange rates
+        run: npm run update-markets
+        continue-on-error: true
+
+      - name: News headlines
+        run: npm run update-news
+        continue-on-error: true
+
+      - name: Save the files that changed
+        run: |
+          if git diff --quiet markets.json news.json; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git config user.name "data-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add markets.json news.json
+          git commit -m "Update prices and news"
+          git push

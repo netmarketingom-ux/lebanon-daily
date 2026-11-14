@@ -1,6 +1,7 @@
 # Lebanon Daily | لبنان اليوم
 
-A simple website that shows the USD to LBP market rate, today's fuel prices and the day's news in Lebanon.
+A simple website for Lebanon showing gold and silver prices, exchange rates, today's fuel prices
+and the day's news. Gold, exchange rates and news update themselves; you only edit the fuel prices.
 It works in Arabic (the default, right-to-left) and English.
 
 ## Files
@@ -10,15 +11,17 @@ It works in Arabic (the default, right-to-left) and English.
 | `index.html` | The page layout: header, the cards and the footer              |
 | `style.css`  | Colours, sizes and layout (built for phones first)                 |
 | `app.js`     | Loads the data, fills in the numbers, draws the chart, switches language |
-| `data.json`  | **The prices. Edit this file to update the site.**                 |
+| `data.json`  | **Fuel prices and the LBP rate. You edit this file by hand.**      |
+| `markets.json` | Gold, silver and exchange rates. Written automatically, don't edit |
 | `news.json`  | The news headlines. Written automatically (or edit by hand)        |
-| `agent/update-news.mjs` | Collects the news from RSS feeds (see "Automatic news" below) |
-| `.github/workflows/update-news.yml` | Runs the news collector on GitHub every 3 hours |
-| `package.json` | Only adds the `npm run update-news` command. Nothing to install.  |
+| `agent/update-markets.mjs` | Fetches gold, silver and exchange rates (see "Automatic prices") |
+| `agent/update-news.mjs` | Collects the news from RSS feeds (see "Automatic news") |
+| `.github/workflows/update-data.yml` | Runs both updaters on GitHub every hour |
+| `package.json` | Only adds the `npm run update-...` commands. Nothing to install.  |
 
 ## How to open and test it on your computer
 
-The page reads `data.json` with JavaScript. Browsers block this when you double-click
+The page reads its `.json` files with JavaScript. Browsers block this when you double-click
 `index.html` (the address starts with `file://`), so you will see an error message.
 Run a small local server instead. Pick **one** of these:
 
@@ -50,29 +53,53 @@ You can also use your browser's phone preview: press `F12`, then the phone/table
 - The **English** button switches everything to English, and the choice is remembered.
 - Change a number in `data.json`, save, and refresh the page: the new number appears.
 
-## Updating the prices
+## Updating the fuel prices (by hand)
 
 Open `data.json` and change the numbers. Keep the commas, quotes and brackets exactly as they are.
 
 ```json
-"dollar": {
-  "rate": 89500,                      <- today's rate (no commas inside the number)
-  "lastUpdated": "2026-11-03T09:30:00",  <- date and time: YYYY-MM-DDTHH:MM:SS
-  "history": [ ... 7 days of { "date", "rate" } ... ]
+{
+  "lbpRate": 89500,                      <- LBP for 1 US dollar (shown in the exchange rates card)
+  "fuel": {
+    "lastUpdated": "2026-11-03T08:00:00",  <- date and time: YYYY-MM-DDTHH:MM:SS
+    "gasoline95": 1450000,               <- prices in LBP, no commas inside the numbers
+    "gasoline98": 1490000,
+    "diesel": 1320000,
+    "gasCylinder": 1080000
+  }
 }
 ```
 
-Each day: update `rate` and `lastUpdated`, then add today's entry at the **end** of
-`history` and delete the first (oldest) one, so there are always 7 days.
-
 If the page shows an error after editing, you probably broke the JSON format
 (a missing comma is the usual cause). Paste the file into https://jsonlint.com to find the mistake.
+
+## Automatic prices (free, no API key)
+
+`markets.json` is rewritten every hour by `agent/update-markets.mjs`:
+
+- **Gold and silver** come from https://gold-api.com: the live international price per ounce
+  in US dollars. The website works out the price per gram for 24k, 21k and 18k gold
+  (24k = ounce price ÷ 31.1; 21k = 21/24 of that; 18k = 18/24). Shop prices in Lebanon are
+  higher because they include workmanship; the card says so.
+- **Exchange rates** come from https://frankfurter.dev: the official daily rates of the
+  European Central Bank, published once per working day (none at weekends).
+- **The change** (▲ / ▼ %) compares with the day before.
+- **The gold chart:** gold-api.com only gives today's price, so the updater keeps its own
+  history, one price per day. The chart appears on the second day and shows a full week
+  after 7 days.
+- If a source is down, its old numbers stay on the site.
+
+To change which currencies are shown, edit `CURRENCIES` at the top of `agent/update-markets.mjs`
+(any currency the European Central Bank publishes, e.g. JPY or SEK), and add its name in both
+languages to `currencies` in the `TEXT` object in `app.js`.
+
+These are prices for information only. The site does not give buy/sell advice.
 
 ## Automatic news (free, from RSS feeds)
 
 The News card is filled from `news.json`. A small script keeps that file up to date:
 
-1. Every 3 hours GitHub runs `agent/update-news.mjs` (see `.github/workflows/update-news.yml`).
+1. Every hour GitHub runs `agent/update-news.mjs` (see `.github/workflows/update-data.yml`).
 2. The script reads the free RSS headline feeds of these news websites:
    - **Arabic:** LBCI, An-Nahar, BBC Arabic, Al Jazeera
    - **English:** LBCI, BBC News, Al Jazeera
@@ -83,7 +110,7 @@ The News card is filled from `news.json`. A small script keeps that file up to d
 5. If no feed can be read, the old news stays on the site unchanged.
 
 Nothing to set up and nothing to pay: it starts working as soon as these files are on GitHub.
-To test it right away: **Actions → Update news → Run workflow**.
+To test it right away: **Actions → Update data → Run workflow**.
 
 Note: English Lebanon news is thinner than Arabic (sometimes only 1 or 2 headlines),
 because fewer English sites offer a feed that robots may read.
@@ -96,33 +123,30 @@ All the settings are at the top of `agent/update-news.mjs`:
   `site.com/rss` or `site.com/feed`) and copy one of the existing lines.
 - `LEBANON_WORDS`: the words that mark a story from an international site as Lebanon news.
 
-To change how often it runs, edit the `cron` line in `.github/workflows/update-news.yml`.
+To change how often it runs, edit the `cron` line in `.github/workflows/update-data.yml`.
 
 ### Run it on your own computer (optional)
 
 You need Node.js 18 or newer (https://nodejs.org). In the project folder run:
 
 ```
+npm run update-markets
 npm run update-news
 ```
 
-Then refresh the website to see the new headlines.
+Then refresh the website to see the new prices and headlines.
 
 ## Changing the wording
 
 All the text in both languages is in the `TEXT` object near the top of `app.js`.
 
-## Connecting a real data source later
+## Connecting other data sources later
 
-All loading happens in one place: the `loadData()` function in `app.js`.
-
-- **If you find an API that returns the same JSON shape as `data.json`**, just change
-  `DATA_URL` at the top of `app.js` to its address.
-- **If the API returns a different shape**, keep `DATA_URL` pointing at it and change
-  `loadData()` so it converts the response into the `data.json` shape before returning it.
-  The rest of the code does not need to change.
-- **Or keep the file**: have a small script or scheduled job write a fresh `data.json`
-  on your server every day. The website code stays exactly the same.
+The website only reads three files (`data.json`, `markets.json`, `news.json`); the addresses
+are at the top of `app.js` and all loading happens in the `loadJson()` function.
+The simplest way to add a new source, for example official fuel prices, is the same pattern
+used for gold and news: a small script in `agent/` that writes the file, plus a line in
+`.github/workflows/update-data.yml` to run it. The website code doesn't need to change.
 
 ## Publishing it for free
 
