@@ -1,61 +1,85 @@
 {
-  "lastUpdated": "2026-11-17T03:51:16.934Z",
+  "lastUpdated": "2026-11-17T13:22:50.940Z",
   "items": [
     {
       "lang": "ar",
-      "source": "النهار",
-      "title": "الرياض مع تطبيق تعهدات لبنان... ودعم الحكومة وملاقاة بري",
-      "summary": "من المفارقة أن اللبنانيين يستغربون زحمة قدوم الوفود الديبلوماسية الى بلدهم وهم يعرفون في الاصل ان مفاتيح ملفاتهم المالية والاقتصادية الى سلاح حزب الله…",
-      "url": "https://www.annahar.com/lebanon/politics/366885/%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6-%D9%85%D8%B9-%D8%AA%D8%B7%D8%A8%D9%8A%D9%82-%D8%AA%D8%B9%D9%87%D8%AF%D8%A7%D8%AA-%D9%84%D8%A8%D9%86%D8%A7%D9%86-%D9%88%D8%AF%D8%B9%D9%85-%D8%A7%D9%84%D8%AD%D9%83%D9%88%D9%85%D8%A9-%D9%88%D9%85%D9%84%D8%A7%D9%82%D8%A7%D8%A9-%D8%A8%D8%B1%D9%8A",
-      "publishedAt": "2026-11-17T03:20:00.000Z"
-    },
-    {
-      "lang": "ar",
-      "source": "النهار",
-      "title": "شكوى من ارتفاع الأقساط",
-      "summary": "• تزداد شكوى الأهالي من ارتفاع الاقساط في عدد من الجامعات الخاصة بعدما بلغت حدود 30 في المئة خلال العام الجامعي الجاري، في حين أن الرواتب والمداخيل لم…",
-      "url": "https://www.annahar.com/lebanon/whispers/367035/%D8%B4%D9%83%D9%88%D9%89-%D9%85%D9%86-%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%A7%D9%84%D8%A7%D9%82%D8%B3%D8%A7%D8%B7",
-      "publishedAt": "2026-11-17T03:10:00.000Z"
-    },
-    {
-      "lang": "ar",
-      "source": "النهار",
-      "title": "الفاتيكان يواف على انتقال مدرسة راهبات الناصرة",
-      "summary": "• وافق الفاتيكان على انتقال مدرسة راهبات الناصرة في الأشرفية إلى الرهبان الأنطونيين بعد مرحلة من الأخذ والردّ والتزام راهبات الناصرة الصمت، قبل أن…",
-      "url": "https://www.annahar.com/lebanon/whispers/367034/%D8%A7%D9%84%D9%81%D8%A7%D8%AA%D9%8A%D9%83%D8%A7%D9%86-%D9%8A%D9%88%D8%A7%D9%81-%D8%B9%D9%84%D9%89-%D8%A7%D9%86%D8%AA%D9%82%D8%A7%D9%84-%D9%85%D8%AF%D8%B1%D8%B3%D8%A9-%D8%B1%D8%A7%D9%87%D8%A8%D8%A7%D8%AA-%D8%A7%D9%84%D9%86%D8%A7%D8%B5%D8%B1%D8%A9",
-      "publishedAt": "2026-11-17T03:07:00.000Z"
-    },
-    {
-      "lang": "ar",
-      "source": "النهار",
-      "title": "قانون الإعلام الجديد",
-      "summary": "• تنتظر مصادر نقابية متابعة لقانون الإعلام الجديد كيفية تطبيق القضاء لبنوده، وخصوصاً في ظل تقدّم النائب سامي الجميّل بدعوى بحق من أقحم اسمه بقضية رجل…",
-      "url": "https://www.annahar.com/lebanon/whispers/367032/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%A7%D9%84%D8%A7%D8%B9%D9%84%D8%A7%D9%85-%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF",
-      "publishedAt": "2026-11-17T03:05:00.000Z"
-    },
-    {
-      "lang": "ar",
-      "source": "الجزيرة",
-      "title": "واشنطن تصر على سيادة الجيش بلبنان وإسرائيل ترفض نسخة ثانية من اليونيفيل",
-      "summary": "تمسك لبنان بمطالبته بانسحاب إسرائيل لكي يتولى جيشه زمام الأمور في كنف السيادة الوطنية مع استمرار حضور دولي في الجنوب، بينما ترفض إسرائيل ما تصفه بنسخة…",
-      "url": "https://www.aljazeera.net/news/2026/11/17/%d9%88%d8%a7%d8%b4%d9%86%d8%b7%d9%86-%d8%aa%d8%b5%d8%b1-%d8%b9%d9%84%d9%89-%d8%b3%d9%8a%d8%a7%d8%af%d8%a9-%d9%8a%d8%a4%d9%85%d9%86%d9%87%d8%a7-%d8%a7%d9%84%d8%ac%d9%8a%d8%b4-%d9%81%d9%8a",
-      "publishedAt": "2026-11-16T21:56:03.000Z"
+      "source": "LBCI",
+      "title": "الصحة تقفل صالون تجميل مخالفاً في البازورية",
+      "summary": "أقفل مراقب صحي، بتوجيه من رئيس طبابة قضاء صور وسام غزال، صالون تجميل نسائياً في بلدة البازورية،...",
+      "url": "https://www.lbcgroup.tv/news/lebanon/968429/title/ar",
+      "publishedAt": "2026-11-17T13:14:51.000Z"
     },
     {
       "lang": "ar",
       "source": "LBCI",
-      "title": "في مقابلة حصرية مع الـLBCI... نائبة الأمين العام للأمم المتحدة تؤكد أن القرار 1701 لا يزال الإطار الناظم للأمن في لبنان",
-      "summary": "س: مع اقتراب انتهاء زيارتكم إلى لبنان، ما الهدف الرئيسي منها، وما أبرز النتائج التي تحققت...",
-      "url": "https://www.lbcgroup.tv/news/lebanon/968304/title/ar",
-      "publishedAt": "2026-11-16T21:17:00.000Z"
+      "title": "اطلاق الحملة الوطنية للتوعية بالصحة النفسية للرجال",
+      "summary": "تم اطلاق الحملة الوطنية للتوعيةبالصحة النفسية للرجال بالتوازي مع حملة<span cla",
+      "url": "https://www.lbcgroup.tv/news/lebanon/968427/title/ar",
+      "publishedAt": "2026-11-17T13:09:07.000Z"
     },
     {
       "lang": "ar",
       "source": "LBCI",
-      "title": "مكتب مكافحة القمار يوقف متورّطًا باستغلال محافظ إلكترونيّة في القمار غير الشرعي",
-      "summary": "أعلنت المديرية العامة لقوى الأمن الداخلي ـ شعبة العلاقات العامة أنه في إطار العمل المستمرّ الذي...",
-      "url": "https://www.lbcgroup.tv/news/lebanon-security/968291/title/ar",
-      "publishedAt": "2026-11-16T18:39:46.000Z"
+      "title": "لجنة التحقيق النيابية تتفقد مستودع أوجيرو المحترق في الدكوانة… وبو صعب: وضع هذا المستودع لا يطمئن",
+      "summary": "",
+      "url": "https://www.lbcgroup.tv/news/lebanon/968425/title/ar",
+      "publishedAt": "2026-11-17T13:04:53.000Z"
+    },
+    {
+      "lang": "ar",
+      "source": "النهار",
+      "title": "الصقيع يحرق مواسم دير الأحمر-البقاع... والمزارع يخوض معركة البقاء",
+      "summary": "في الفجر، لا يطلق الصقيع رصاصة، ولا يترك خلفه دماراً صاخباً.هو يمرّ في السهل كشبحٍ أبيض، خفيف الخطى، ثقيل الوطأة. وحين تشرق شمس الصباح على قرى غربي…",
+      "url": "https://www.annahar.com/lebanon/367270/%D8%A7%D9%84%D8%B5%D9%82%D9%8A%D8%B9-%D9%81%D9%8A-%D8%B3%D9%87%D9%84-%D8%AF%D9%8A%D8%B1-%D8%A7%D9%84%D8%A3%D8%AD%D9%85%D8%B1",
+      "publishedAt": "2026-11-17T12:58:00.000Z"
+    },
+    {
+      "lang": "ar",
+      "source": "النهار",
+      "title": "والتز: رسالة أميركا واضحة... دولة واحدة وجيش واحد في لبنان",
+      "summary": "أعلن السفير الأميركي لدى الأمم المتحدة مايك والتز، عقب لقائه رئيس الجمهورية اللبنانية جوزف عون، أنّ النقاش كان مثمراً، مؤكداً أنّ رسالة أميركا واضحة:…",
+      "url": "https://www.annahar.com/lebanon/367319/%D9%88%D8%A7%D9%84%D8%AA%D8%B2-%D8%B1%D8%B3%D8%A7%D9%84%D8%A9-%D8%A3%D9%85%D9%8A%D8%B1%D9%83%D8%A7-%D9%88%D8%A7%D8%B6%D8%AD%D8%A9-%D8%AF%D9%88%D9%84%D8%A9-%D9%88%D8%A7%D8%AD%D8%AF%D8%A9-%D9%88%D8%AC%D9%8A%D8%B4-%D9%88%D8%A7%D8%AD%D8%AF-%D9%81%D9%8A-%D9%84%D8%A8%D9%86%D8%A7%D9%86",
+      "publishedAt": "2026-11-17T12:48:00.000Z"
+    },
+    {
+      "lang": "ar",
+      "source": "LBCI",
+      "title": "سلام استقبل الوزير شحادة والقاضي مكاوي",
+      "summary": "استقبل رئيس مجلس الوزراء نواف سلام وزير المهجرين وشؤون تكنولوجيا المعلومات والذكاء كمال شحادة، كما...",
+      "url": "https://www.lbcgroup.tv/news/lebanon/968423/title/ar",
+      "publishedAt": "2026-11-17T12:34:09.000Z"
+    },
+    {
+      "lang": "ar",
+      "source": "النهار",
+      "title": "وصول طائرة A321XLR إلى مطار بيروت... نواف سلام: نتطلّع إلى المستقبل",
+      "summary": "وصلت إلى مطار رفيق الحريري الدولي في بيروت، اليوم الثلاثاء، أول طائرة من طراز إيرباص A321XLR تنضم إلى أسطول شركة طيران الشرق الأوسط (MEA).وكان في…",
+      "url": "https://www.annahar.com/lebanon/367263/%D8%A7%D9%84%D9%86%D9%87%D8%A7%D8%B1-%D8%AA%D9%88%D8%A7%D9%83%D8%A8-%D9%88%D8%B5%D9%88%D9%84-%D8%B7%D8%A7%D8%A6%D8%B1%D8%A9-a321xlr-%D8%A5%D9%84%D9%89-%D9%85%D8%B7%D8%A7%D8%B1-%D8%A8%D9%8A%D8%B1%D9%88%D8%AA-%D9%81%D9%8A%D8%AF%D9%8A%D9%88",
+      "publishedAt": "2026-11-17T11:26:00.000Z"
+    },
+    {
+      "lang": "ar",
+      "source": "النهار",
+      "title": "لبنان... الكشف عن مُلابسات جريمة قتل في برج حمّود وتوقيف المتورّطين",
+      "summary": "بتاريخ 05-11-2026، وفي محلّة برج حمّود – الطريق البحريّة، عُثر على المدعو ح. ع. (مواليد عام 1993، لبناني) مصاباً بطلق ناري. وقد نُقل إلى أحد…",
+      "url": "https://www.annahar.com/lebanon/367253/%D9%84%D8%A8%D9%86%D8%A7%D9%86-%D8%A7%D9%84%D9%83%D8%B4%D9%81-%D8%B9%D9%86-%D9%85%D9%84%D8%A7%D8%A8%D8%B3%D8%A7%D8%AA-%D8%AC%D8%B1%D9%8A%D9%85%D8%A9-%D9%82%D8%AA%D9%84-%D9%81%D9%8A-%D8%A8%D8%B1%D8%AC-%D8%AD%D9%85%D9%88%D8%AF-%D9%88%D8%AA%D9%88%D9%82%D9%8A%D9%81-%D8%A7%D9%84%D9%85%D8%AA%D9%88%D8%B1%D8%B7%D9%8A%D9%86",
+      "publishedAt": "2026-11-17T10:59:00.000Z"
+    },
+    {
+      "lang": "en",
+      "source": "LBCI",
+      "title": "Middle East Airlines welcomes new Airbus A321XLR as PM Salam highlights Lebanon's recovery ambitions",
+      "summary": "A new Airbus A321XLR aircraft arrived at Beirut's Rafic Hariri International Airport on Tuesday...",
+      "url": "https://www.lbcgroup.tv/news/lebanon-news/968428/title/en",
+      "publishedAt": "2026-11-17T13:14:00.000Z"
+    },
+    {
+      "lang": "en",
+      "source": "LBCI",
+      "title": "Investigation into five Hezbollah detainees ongoing as leaked news reportedly compromises probe",
+      "summary": "The investigation into five Hezbollah members detained between the Bsharri and Koura districts is...",
+      "url": "https://www.lbcgroup.tv/news/lebanon-news/968387/title/en",
+      "publishedAt": "2026-11-17T10:20:04.000Z"
     },
     {
       "lang": "en",
@@ -72,22 +96,6 @@
       "summary": "The Israeli army said it had arrested two members of the Lebanese Resistance Brigades, which it...",
       "url": "https://www.lbcgroup.tv/news/lebanon-news/968245/title/en",
       "publishedAt": "2026-11-16T15:07:13.000Z"
-    },
-    {
-      "lang": "en",
-      "source": "LBCI",
-      "title": "Lebanon expands biometric passport services to Abu Dhabi, Dubai, and Berlin",
-      "summary": "Lebanons Ministry of Interior and Municipalities, through the General Directorate of General...",
-      "url": "https://www.lbcgroup.tv/news/lebanon-news/968225/title/en",
-      "publishedAt": "2026-11-16T13:57:46.000Z"
-    },
-    {
-      "lang": "en",
-      "source": "LBCI",
-      "title": "Waltz highlights bipartisan US support for Lebanon-Israel dialogue following Beirut meetings",
-      "summary": "<br/>Following his meetings with Lebanons top three leadersin Beirut, U.S. Ambassador to the United...",
-      "url": "https://www.lbcgroup.tv/news/lebanon-news/968195/title/en",
-      "publishedAt": "2026-11-16T10:48:30.000Z"
     }
   ]
 }
