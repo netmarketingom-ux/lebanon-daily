@@ -33,7 +33,7 @@
   },
   "forex": {
     "source": "exchangerate-api",
-    "updatedAt": "2026-11-18T04:18:24.018Z",
+    "updatedAt": "2026-11-18T13:57:01.267Z",
     "date": "2026-11-18",
     "main": [
       "EUR",
