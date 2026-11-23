@@ -1,8 +1,8 @@
 {
   "metals": {
-    "updatedAt": "2026-11-23T00:50:53.332Z",
-    "gold": 3578.3,
-    "silver": 41.905,
+    "updatedAt": "2026-11-23T21:20:17.527Z",
+    "gold": 3636.45,
+    "silver": 42.933,
     "history": [
       {
         "date": "2026-11-17",
@@ -36,14 +36,14 @@
       },
       {
         "date": "2026-11-23",
-        "gold": 3578.3,
-        "silver": 41.905
+        "gold": 3636.45,
+        "silver": 42.933
       }
     ]
   },
   "forex": {
     "source": "exchangerate-api",
-    "updatedAt": "2026-11-23T09:00:11.474Z",
+    "updatedAt": "2026-11-23T21:20:17.639Z",
     "date": "2026-11-23",
     "main": [
       "EUR",
